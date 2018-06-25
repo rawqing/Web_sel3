@@ -36,7 +36,32 @@ fun WebElement._sendKeys(string: String): WebElement{
     }
     return this
 }
+fun WebElement._select(): WebElement{
+    log.debug("_select ${this}")
+    try {
+        if (this.isSelected) return this
 
+        this._click()
+    } catch (e: Exception) {
+        screenshot(scene = "_select()")
+        e.printStackTrace()
+        throw e
+    }
+    return this
+}
+fun WebElement._deselect(): WebElement{
+    log.debug("_deselect ${this}")
+    try {
+        if (!this.isSelected) return this
+
+        this._click()
+    } catch (e: Exception) {
+        screenshot(scene = "_deselect()")
+        e.printStackTrace()
+        throw e
+    }
+    return this
+}
 /**
  * 等待 , 默认次数 5 次 , 时间间隔按 BTest 中的隐式等待
  * !!!! 调试过程中 改等待次数为 1
@@ -72,16 +97,6 @@ fun WebElement._findElement(by: By): WebElement? {
         null
     }
 }
-//fun  WebElement._check(matcher: Matcher<WebElement>):WebElement{
-//    log.debug("_check {}",this.toString())
-//    try {
-//        MatcherAssert.assertThat(this, matcher)
-//    } catch (t: Throwable) {
-//        screenshot(scene = "_check($matcher)")
-//        throw t
-//    }
-//    return this
-//}
 
 fun  WebElement._check(matcher: Matcher<WebElement> ,times: Int = 2):WebElement{
     log.debug("_check ${this.toString().limit(100)} $times times.")
@@ -101,7 +116,7 @@ fun  WebElement._check(matcher: Matcher<WebElement> ,times: Int = 2):WebElement{
     }
     return this
 }
-fun <T> check(o:()-> T, matcher: Matcher<T>, times: Int = 1) {
+fun <T> check(o:()-> T, matcher: Matcher<T>, times: Int = 2) {
     log.debug("_check ${o.toString().limit(100)} $times times.")
     for (i in 1..times) {
         var the:T? = null
