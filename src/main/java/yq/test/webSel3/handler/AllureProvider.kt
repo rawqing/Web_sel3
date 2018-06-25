@@ -10,8 +10,11 @@ import java.awt.Rectangle
 import java.awt.Robot
 import java.awt.Toolkit
 import java.io.File
+import java.io.FileInputStream
 import java.io.IOException
+import java.io.InputStream
 import javax.imageio.ImageIO
+
 
 /**
  * 打印电脑屏幕
@@ -22,7 +25,7 @@ fun printScreen(){
     try {
         ImageIO.write(image, "png", File(".\\Screenshots\\screen_robot.png"))
     } catch (e: IOException) {
-        e.printStackTrace()
+        log.error("AllureProvider.kt: screenshot error! ",e)
     }
 }
 
@@ -30,9 +33,13 @@ fun printScreen(){
  * 浏览器截图 , 不包括浏览器菜单栏和状态栏 以及 任何超出浏览器的部分
  */
 fun screenshot(scene: String = "", driver: WebDriver = webDriver){
-    log.warn("Will screenshot . Maybe test failure.")
-    Allure.addByteAttachmentAsync("Screenshot${if (scene == "")"" else " with $scene"}","image/png",".png",
-            {(driver as TakesScreenshot).getScreenshotAs(OutputType.BYTES)})
+    log.warn("AllureProvider.kt: Will screenshot . Maybe test failure.")
+    try {
+        Allure.addByteAttachmentAsync("Screenshot${if (scene == "") "" else " with $scene"}", "image/png", ".png",
+                { (driver as TakesScreenshot).getScreenshotAs(OutputType.BYTES) })
+    } catch (t: Throwable) {
+        log.error("AllureProvider.kt: screenshot error! ",t)
+    }
 }
 
 /**
@@ -47,6 +54,12 @@ fun appendLogToAllure(file: File): ByteArray? {
     }
 }
 fun appendLog(name: String = "", file: File){
-    val fba = FileUtils.readFileToByteArray(file)
-    Allure.addByteAttachmentAsync("[${if (name=="") "TEST" else name}] LOG" ,"text/plain",".log",{fba})
+    try {
+//        val fba = FileUtils.readFileToByteArray(file)
+//        Allure.addByteAttachmentAsync("[${if (name == "") "TEST" else name}] LOG", "text/plain", ".log", { fba })
+        val input: InputStream = FileInputStream(file)
+        Allure.addAttachment("[${if (name == "") "TEST" else name}] LOG", "text/plain", input, ".log" )
+    } catch (t: Throwable) {
+        log.error("AllureProvider.kt: appendLog error! ",t)
+    }
 }
