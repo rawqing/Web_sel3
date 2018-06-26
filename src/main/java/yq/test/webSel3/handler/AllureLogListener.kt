@@ -55,6 +55,7 @@ class AllureLogListener: ITestListener, IInvokedMethodListener {
     }
 
     override fun onTestSkipped(result: ITestResult?) {
+        screenshot(scene = "test skipped")
     }
 
     override fun onTestSuccess(result: ITestResult?) {
