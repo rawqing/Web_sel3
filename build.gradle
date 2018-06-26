@@ -4,6 +4,10 @@ buildscript {
     ext.selenium_version = '3.11.0'
     ext.allure_version = '2.6.0'
 
+    ext.group_Id = "yq.test"
+    ext.artifact_Id = "web-sel3"
+    ext.ver = "1.0.1"
+
     repositories {
         mavenCentral()
     }
@@ -18,18 +22,47 @@ version '1.0-SNAPSHOT'
 apply plugin: 'java'
 apply plugin: 'kotlin'
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url: "${mvn_local}")
-            pom.groupId = "yq.test"
-            pom.version = "1.0.1"
-            pom.artifactId = 'web-sel3'
+            repository(url: "${mavenLocal().url}")
+
+            pom.groupId = "$group_Id"
+            pom.artifactId = "$artifact_Id"
+            pom.version = "$ver"
         }
     }
 }
+publishing {
+    publications {
+        maven(MavenPublication) {
+            //打包源码和class
+            from components.java
+            //定义源码task
+            artifact sourceJar
+            //定义包的坐标:
+            groupId "$group_Id"
+            artifactId "$artifact_Id"
+            version "$ver"
+        }
+    }
+    //定义目标仓库 (包所存放的地方)
+    repositories {
+        //发布到自定义的目录
+//        maven {
+//            url "${mvn_local}" //本地仓库 (包存放在项目更目录下的repo目录)
+//        }
+        //发布到本地maven仓库 (~/.m2/repository)
+        mavenLocal()
+    }
+}
 
+task sourceJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier "sources" //定义一个标志 (生成的jar包后面加上sources, 如: jlib-2.2.11-sources.jar)
+}
 sourceCompatibility = 1.8
 
 repositories {

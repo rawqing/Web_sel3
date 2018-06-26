@@ -88,6 +88,28 @@ fun WebElement.isExist():Boolean{
         false
     }
 }
+fun WebElement.isExist(times: Int):Boolean{
+    for (i in 1..times) {
+        if (this.isExist())
+            log.debug("${this} is exist with $i times.")
+            return true
+    }
+    log.debug("${this} does not exist with $times times.")
+    return false
+}
+fun WebElement.isVisible(times: Int = 1):Boolean{
+    for (i in 1..times) {
+        try {
+            if (this.isDisplayed) {
+                log.debug("${this} is visible with $i times.")
+                return true
+            }
+        } catch (e: Exception) {
+            log.debug("${this} does not visible with $i times.")
+        }
+    }
+    return false
+}
 
 fun WebElement._findElement(by: By): WebElement? {
     return try {
@@ -117,7 +139,7 @@ fun  WebElement._check(matcher: Matcher<WebElement> ,times: Int = 2):WebElement{
     return this
 }
 fun <T> check(o:()-> T, matcher: Matcher<T>, times: Int = 2) {
-    log.debug("_check ${o.toString().limit(100)} $times times.")
+    log.debug("_check ${o.toString().limit(100)} ($matcher) $times times.")
     for (i in 1..times) {
         var the:T? = null
         try {
